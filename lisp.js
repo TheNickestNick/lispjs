@@ -2,31 +2,35 @@ var lispjs = {};
 
 lispjs.tokenize = function(input) {
 	return input
-		.replace('(', ' ( ')
-		.replace(')', ' ) ')
+		.replace(/\(/g, ' ( ')
+		.replace(/\)/g, ' ) ')
 		.split(' ')
 		.filter(function (c) {
-			return c != '';
+			return c != '' && c != ' ';
 		});
 };
 
-lispjs.parse = function(input) {
-	var list = [];
-
-	if (input[0] != '(')
+lispjs.parseinternal = function(input, i, list) {
+	if (input[i] != '(')
 		throw 'Expected "("';
-	
-	for(var i = 1; i < input.length; i++) {
+
+	for(i = i + 1; i < input.length; i++) {
 		if (input[i] == ')')
-			return list;
+			return i;
 		else if (input[i] == '(') {
-			var sub = lispjs.parse(input.slice(i));
-			i += sub.length;
+			var sub = [];
+			i = lispjs.parseinternal(input, i, sub);
 			list.push(sub);
 		}
 		else 
-			list.push(input[i]);
+			list.push(input[i]);		
 	}
-	
+
 	throw 'Expected ")"';
+}
+
+lispjs.parse = function(input) {
+	var list = [];
+	lispjs.parseinternal(input, 0, list);
+	return list;
 };
