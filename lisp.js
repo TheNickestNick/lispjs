@@ -34,3 +34,30 @@ lispjs.parse = function(input) {
 	lispjs.parseinternal(input, 0, list);
 	return list;
 };
+
+function evnironment(parent) {
+	var symbols = {};
+
+	this.get = function(sym) {
+		var val = symbols[sym];
+		if (typeof val == 'undefined' && parent)
+			return parent.get(sym);
+		return val;
+	};
+	
+	this.set = function(sym, val) {
+		symbols[sym] = val;
+	};
+};
+
+var globals = new environment();
+
+lispjs.eval = function(ast) {
+	for(var i = 0; i < ast.length; i++) {
+		if (typeof ast[i] != 'string') {
+			
+		}
+		else {
+		}
+	}
+};
