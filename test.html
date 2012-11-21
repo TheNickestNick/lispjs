@@ -9,16 +9,30 @@
 		</div>
 
 		<script type="text/javascript">
+			function arrayToString(arr) {
+				var str = '[';
+				for(var i = 0; i < arr.length; i++) {
+					var val = arr[i];
+					
+					if (typeof(val) == 'string')
+						str += val + ', ';
+					else
+						str += arrayToString(val);
+				}
+				str += ']'
+				return str;
+			};
+		
 			function print(str) {
 				document
 					.getElementById('output')
 					.innerHTML = str;
 			};
 		
-			var code = "(+ 1 2)";
+			var code = "(+ 1 ( * 2 3))";
 			var tokens = lispjs.tokenize(code);
-			
-			print(tokens);
+			var ast = lispjs.parse(tokens);
+			print(arrayToString(ast));
 		</script>		
 	</body>
 </html>
