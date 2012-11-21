@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<title>lispjs test</title>
+		<script type="text/javascript" src="lisp.js"></script>
+	</head>
+	<body>
+		<div id="output">
+		
+		</div>
+
+		<script type="text/javascript">
+			function print(str) {
+				document
+					.getElementById('output')
+					.innerHTML = str;
+			};
+		
+			var code = "(+ 1 2)";
+			var tokens = lispjs.tokenize(code);
+			
+			print(tokens);
+		</script>		
+	</body>
+</html>
