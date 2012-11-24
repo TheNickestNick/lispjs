@@ -7,11 +7,11 @@
 	</head>
 	<body>
 		<script type="text/javascript">
-			function print(obj) {
+			function print(obj, type) {
 				if (typeof obj !== 'string')
 					obj = JSON.stringify(obj);
-					
-				$('#output').append('<div>' + obj + '</div>')
+				
+				$('#output').append('<div class="' + type + '">' + obj + '</div>')
 			};
 		
 			$(function() {
@@ -21,7 +21,26 @@
 					var input = $('#input').val();
 					$('#input').val('');
 					
-					print(eval(input));
+					var evaluator;
+					if (input[0] == '>') {
+						input = input.substring(1);
+						evaluator = eval;
+					}
+					else {
+						evaluator = lispjs.eval;
+					}
+
+					try {
+						print(evaluator(input));
+					}
+					catch (e) {
+						if (e instanceof SyntaxError) {						
+							print(e.message, 'error')
+						}
+						else {
+							print(e, 'error');
+						}
+					}
 				});
 			});
 		</script>
