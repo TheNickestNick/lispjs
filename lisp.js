@@ -30,6 +30,9 @@ lispjs.parseinternal = function(input, i, list) {
 }
 
 lispjs.parse = function(input) {
+	if (typeof input === 'string')
+		input = lispjs.tokenize(input);
+
 	var list = [];
 	lispjs.parseinternal(input, 0, list);
 	return list;
@@ -52,9 +55,12 @@ function evnironment(parent) {
 
 var globals = new environment();
 
-lispjs.eval = function(ast) {
-	for(var i = 0; i < ast.length; i++) {
-		if (typeof ast[i] != 'string') {
+lispjs.eval = function(input) {
+	if (typeof input == 'string')
+		input = lispjs.parse(input);
+
+	for(var i = 0; i < input.length; i++) {
+		if (typeof input[i] != 'string') {
 			
 		}
 		else {

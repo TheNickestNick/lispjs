@@ -1,38 +1,34 @@
 <html>
 	<head>
 		<title>lispjs test</title>
+		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript" src="lisp.js"></script>
+		<link href="styles.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
-		<div id="output">
-		
-		</div>
-
 		<script type="text/javascript">
-			function arrayToString(arr) {
-				var str = '[';
-				for(var i = 0; i < arr.length; i++) {
-					var val = arr[i];
+			function print(obj) {
+				if (typeof obj !== 'string')
+					obj = JSON.stringify(obj);
 					
-					if (typeof(val) == 'string')
-						str += val + ', ';
-					else
-						str += arrayToString(val) + ', ';
-				}
-				str += ']'
-				return str;
+				$('#output').append('<div>' + obj + '</div>')
 			};
 		
-			function print(str) {
-				document
-					.getElementById('output')
-					.innerHTML = str;
-			};
-		
-			var code = "(if (= x 1)(1337)(0))";
-			var tokens = lispjs.tokenize(code);
-			var ast = lispjs.parse(tokens);
-			print(arrayToString(ast));
-		</script>		
+			$(function() {
+				$('form').submit(function(evt) {
+					evt.preventDefault();
+					
+					var input = $('#input').val();
+					$('#input').val('');
+					
+					print(eval(input));
+				});
+			});
+		</script>
+		<div id="output">
+		</div>
+		<form action="">
+			<input type="text" value="" id="input" />
+		</form>
 	</body>
 </html>
