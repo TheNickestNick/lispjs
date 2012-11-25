@@ -14,7 +14,7 @@ function Environment(parent) {
 
 function atom(str) {
 	if (str[0] === '"' && str[str.length - 1] == '"')
-		return str.substring(1, str.length - 2);
+		return str.substring(1, str.length - 1);
 
 	return parseFloat(str) || new Symbol(str);
 };
@@ -62,29 +62,34 @@ var lispjs = new (function(){
 		if (!(ast instanceof Array)) {
 			return ast;
 		}
-		
-		if (!(ast[0] instanceof Symbol))
-			throw new SyntaxError('Expected symbol');
 			
-		if (ast[0].name === 'define') {
-			var symbol = ast[1];
-			var value = evaluate(ast[2], env);
-			env.set(symbol.name, value);
-		}
-		else if (ast[0].name === 'lambda') {
-			var argNames = ast[1];
-			var body = ast[2];
-			
-			return function() {
-				var callEnv = new Environment(env);
+		if (ast[0] instanceof Symbol) {
+			if (ast[0].name === 'define') {
+				var symbol = ast[1];
+				var value = evaluate(ast[2], env);
+				env.set(symbol.name, value);
+				return value;
+			}
+			else if (ast[0].name === 'if') {
+				return evaluate(ast[1], env) 
+					 ? evaluate(ast[2], env) 
+					 : evaluate(ast[3], env);
+			}
+			else if (ast[0].name === 'lambda') {
+				var argSymbols = ast[1];
+				var body = ast[2];
 				
-				for (var i = 0; i < arguments.length; i++)
-					callEnv.set(argNames[i], arguments[i]);
+				return function() {
+					var callEnv = new Environment(env);
+					
+					for (var i = 0; i < arguments.length; i++)
+						callEnv.set(argSymbols[i].name, arguments[i]);
 
-				return evaluate(body, callEnv);
-			};
+					return evaluate(body, callEnv);
+				};
+			}
 		}
-
+		
 		var list = [];
 		for(var i = 0; i < ast.length; i++)
 			list.push(evaluate(ast[i], env));
@@ -102,6 +107,9 @@ var lispjs = new (function(){
 	globals.set('-', function(x, y) { return x - y; });
 	globals.set('*', function(x, y) { return x * y; });
 	globals.set('/', function(x, y) { return x / y; });
+	globals.set('=', function(x, y) { return x == y; });
+	globals.set('>', function(x, y) { return x > y; });
+	globals.set('<', function(x, y) { return x < y; });
 
 	this.interpret = function(str) {
 		return evaluate(parse(tokenize(str)), globals);

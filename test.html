@@ -8,9 +8,7 @@
 	<body>
 		<script type="text/javascript">
 			function print(obj, type) {
-				if (typeof obj !== 'string')
-					obj = JSON.stringify(obj);
-				
+				obj = JSON.stringify(obj);
 				$('#output').append('<div class="' + type + '">' + obj + '</div>')
 			};
 		
@@ -34,7 +32,7 @@
 						evaluator = lispjs.interpret;
 					}
 
-						print(evaluator(input));
+					print(evaluator(input));
 /*					try {
 					}
 					catch (e) {
