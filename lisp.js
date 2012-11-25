@@ -54,10 +54,50 @@ var lispjs = new (function(){
 		}
 	};
 	
-	function evaluate() {
+	function evaluate(ast, evn) {
+		if (ast instanceof Symbol) {
+			return env.get(ast.name);
+		}
+		
+		if (typeof ast === 'string') {
+			return ask;
+		}
+		
+		if (ast[0] === 'define') {
+			var name = ast[1];
+			var expression = ast[2];
+			env.set(name, evaluate(expression, env));
+		}
+		else if (ast[0] === 'lambda') {
+			var argNames = ast[1];
+			var body = ast[2];
+			
+			return function() {
+				var callEnv = new Environment(env);
+				
+				for (var i = 0; i < arguments.length; i++)
+					callEnv.set(argNames[i], arguments[i]);
+
+				return evaluate(body, callEnv);
+			};
+		}
+		else {
+			var list = [];
+			for(var i = 0; i < ast.length; i++) {
+				list.push(evaluate(ast[i], env));
+			};
+			
+			var procedure = list.unshift();
+		};
 	};
 	
 	this.parse = parse;	
 	this.tokenize = tokenize;
 	this.evaluate = evaluate;
+	
+	this.globals = new Environment();
+	
+	this.interpret = function(str) {
+		return evaluate(parse(tokenize(str)), this.globals);
+	};
 })();
