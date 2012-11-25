@@ -31,11 +31,11 @@
 						evaluator = function(input) { return lispjs.parse(lispjs.tokenize(input)); };
 					}
 					else {
-						evaluator = lispjs.evaluate;
+						evaluator = lispjs.interpret;
 					}
 
-					try {
 						print(evaluator(input));
+/*					try {
 					}
 					catch (e) {
 						if (e instanceof SyntaxError) {						
@@ -44,7 +44,7 @@
 						else {
 							print(e, 'error');
 						}
-					}
+					}*/
 				});
 			});
 		</script>

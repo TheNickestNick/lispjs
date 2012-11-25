@@ -1,14 +1,14 @@
 function Symbol(name) { this.name = name; };
 
-function Evnironment(parent) {
+function Environment(parent) {
 	var symbols = {};
 
-	this.get = function(sym) {
-		return val || (parent && parent.get(sym));
+	this.get = function(name) {
+		return symbols[name] || (parent && parent.get(name));
 	};
 	
-	this.set = function(sym, val) {
-		symbols[sym] = val;
+	this.set = function(name, val) {
+		symbols[name] = val;
 	};
 };
 
@@ -54,21 +54,24 @@ var lispjs = new (function(){
 		}
 	};
 	
-	function evaluate(ast, evn) {
+	function evaluate(ast, env) {
 		if (ast instanceof Symbol) {
 			return env.get(ast.name);
 		}
 		
-		if (typeof ast === 'string') {
-			return ask;
+		if (!(ast instanceof Array)) {
+			return ast;
 		}
 		
-		if (ast[0] === 'define') {
-			var name = ast[1];
-			var expression = ast[2];
-			env.set(name, evaluate(expression, env));
+		if (!(ast[0] instanceof Symbol))
+			throw new SyntaxError('Expected symbol');
+			
+		if (ast[0].name === 'define') {
+			var symbol = ast[1];
+			var value = evaluate(ast[2], env);
+			env.set(symbol.name, value);
 		}
-		else if (ast[0] === 'lambda') {
+		else if (ast[0].name === 'lambda') {
 			var argNames = ast[1];
 			var body = ast[2];
 			
@@ -81,23 +84,26 @@ var lispjs = new (function(){
 				return evaluate(body, callEnv);
 			};
 		}
-		else {
-			var list = [];
-			for(var i = 0; i < ast.length; i++) {
-				list.push(evaluate(ast[i], env));
-			};
-			
-			var procedure = list.unshift();
-		};
+
+		var list = [];
+		for(var i = 0; i < ast.length; i++)
+			list.push(evaluate(ast[i], env));
+		
+		var procedure = list.shift();
+		return procedure.apply({ env: env }, list);
 	};
 	
 	this.parse = parse;	
 	this.tokenize = tokenize;
 	this.evaluate = evaluate;
 	
-	this.globals = new Environment();
-	
+	var globals = new Environment();
+	globals.set('+', function(x, y) { return x + y; });
+	globals.set('-', function(x, y) { return x - y; });
+	globals.set('*', function(x, y) { return x * y; });
+	globals.set('/', function(x, y) { return x / y; });
+
 	this.interpret = function(str) {
-		return evaluate(parse(tokenize(str)), this.globals);
+		return evaluate(parse(tokenize(str)), globals);
 	};
 })();
