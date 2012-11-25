@@ -9,7 +9,7 @@
 	<body>
 		<script type="text/javascript">
 			function print(obj) {
-				if (typeof obj === 'undefined' || typeof obj === 'function')
+				if (obj.jquery || typeof obj === 'undefined' || typeof obj === 'function')
 					$('#output').append('<div class="special">' + obj + '</div>')
 				else 
 					$('#output').append('<div>' + JSON.stringify(obj) + '</div>')
