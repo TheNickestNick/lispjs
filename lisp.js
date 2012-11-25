@@ -128,6 +128,8 @@ var lispjs = new (function(){
 	globals.set('>', function(x, y) { return x > y; });
 	globals.set('<', function(x, y) { return x < y; });
 	globals.set('@', function(x, y) { return x[y]; });
+	globals.set('typeof', function(x) { return typeof x; });
+	globals.set('null?', function(x) { return x == null; });
 
 	this.globals = globals;
 	this.interpret = function(str) {
