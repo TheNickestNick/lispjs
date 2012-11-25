@@ -105,6 +105,18 @@ var lispjs = new (function(){
 			else if (ast[0].name === 'lambda') {
 				return lambda(ast[1], ast[2], env);
 			}
+			else if (ast[0].name === 'call/cc') {
+				var proc = evaluate(ast[1], env);
+				var ret;
+				proc(function(r){ ret = r });
+				return ret;
+			}
+			else if (ast[0].name === 'begin') {
+				var val;
+				for(var i = 1; i < ast.length; i++)
+					val = evaluate(ast[i], env);
+				return val;
+			}
 		}
 		
 		var list = [];
