@@ -3,70 +3,36 @@
 		<title>lispjs test</title>
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript" src="lisp.js"></script>
+		<script src="ace/src-min-noconflict/ace.js" type="text/javascript"></script>
 		<link href="styles.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<script type="text/javascript">
-			function print(obj, type) {
-				obj = JSON.stringify(obj);
-				$('#output').append('<div class="' + type + '">' + obj + '</div>')
+			function print(obj) {
+				if (typeof obj === 'undefined' || typeof obj === 'function')
+					$('#output').append('<div class="special">' + obj + '</div>')
+				else 
+					$('#output').append('<div>' + JSON.stringify(obj) + '</div>')
 			};
 		
 			$(function() {
-				$('#input').keypress(function(evt){ 
+				var editor = ace.edit('editor');
+				editor.setTheme("ace/theme/clouds");
+	
+				$('#editor').keypress(function(evt) {
 					if (evt.which == 13 && !evt.shiftKey) {
 						evt.preventDefault();
-						$('form').submit();
+						var code = editor.getValue()
+						print(lispjs.interpret(code));
+						editor.setValue('');
 					}
 				});
 				
-				$('#input').keydown(function(evt) {
-					if (evt.which == 9) {
-						evt.preventDefault();
-						var val = $('#input').val() + '  ';
-						$('#input').val(val);
-					}
-				});
-				
-				$('form').submit(function(evt) {
-					evt.preventDefault();
-					
-					var input = $('#input').val();
-					$('#input').html('');
-					
-					var evaluator;
-					if (input[0] == '>') {
-						input = input.substring(1);
-						evaluator = eval;
-					}
-					if (input[0] == '#') {
-						input = input.substring(1);
-						evaluator = function(input) { return lispjs.parse(lispjs.tokenize(input)); };
-					}
-					else {
-						evaluator = lispjs.interpret;
-					}
-
-					print(evaluator(input));
-/*					try {
-					}
-					catch (e) {
-						if (e instanceof SyntaxError) {						
-							print(e.message, 'error')
-						}
-						else {
-							print(e, 'error');
-						}
-					}*/
-				});
-				
-				$('#input').focus();
+				//lispjs.globals.set('print', print);
 			});
 		</script>
 		<div id="output">
 		</div>
-		<form action="">
-			<textarea id="input"></textarea>
-		</form>
+		<div id="editor">(define scheme "awesome")</div>
 	</body>
 </html>

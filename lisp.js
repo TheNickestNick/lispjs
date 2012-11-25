@@ -1,14 +1,14 @@
 function Symbol(name) { this.name = name; };
 
-function Environment(parent) {
-	var symbols = {};
+function Environment(parent, symbols) {
+	this.symbols = symbols || {};
 
 	this.get = function(name) {
-		return symbols[name] || (parent && parent.get(name));
+		return this.symbols[name] || (parent && parent.get(name));
 	};
 	
 	this.set = function(name, val) {
-		symbols[name] = val;
+		this.symbols[name] = val;
 	};
 };
 
@@ -102,7 +102,7 @@ var lispjs = new (function(){
 	this.tokenize = tokenize;
 	this.evaluate = evaluate;
 	
-	var globals = new Environment();
+	var globals = new Environment(null, window);
 	globals.set('+', function(x, y) { return x + y; });
 	globals.set('-', function(x, y) { return x - y; });
 	globals.set('*', function(x, y) { return x * y; });
@@ -111,6 +111,7 @@ var lispjs = new (function(){
 	globals.set('>', function(x, y) { return x > y; });
 	globals.set('<', function(x, y) { return x < y; });
 
+	this.globals = globals;
 	this.interpret = function(str) {
 		return evaluate(parse(tokenize(str)), globals);
 	};
