@@ -26,8 +26,12 @@
 						input = input.substring(1);
 						evaluator = eval;
 					}
+					if (input[0] == '#') {
+						input = input.substring(1);
+						evaluator = function(input) { return lispjs.parse(lispjs.tokenize(input)); };
+					}
 					else {
-						evaluator = lispjs.eval;
+						evaluator = lispjs.evaluate;
 					}
 
 					try {

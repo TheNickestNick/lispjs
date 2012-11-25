@@ -16,7 +16,7 @@ function atom(str) {
 	if (str[0] === '"' && str[str.length - 1] == '"')
 		return str.substring(1, str.length - 2);
 
-	return new Number(str) || new Symbol(str);
+	return parseFloat(str) || new Symbol(str);
 };
 
 var lispjs = new (function(){
@@ -30,18 +30,21 @@ var lispjs = new (function(){
 			});
 	};
 	
-	function parse(ast) {
-		if (ast.length === 0)
-			throw new SyntaxError('Unexpected end of AST when parsing expression');
+	function parse(tokens) {
+		if (tokens.length === 0)
+			throw new SyntaxError('Unexpected end of token stream when parsing expression');
 			
-		var current = ast.shift();
+		var current = tokens.shift();
 		
 		if (current === '(') {
 			var list = [];
 
-			while (ast[0] !== ')') {
-				list.push(parse(ast.shift()));
+			while (tokens[0] !== ')') {
+				list.push(parse(tokens));
 			}
+			
+			tokens.shift();
+			return list;
 		}
 		else if (current === ')') {
 			throw new SyntaxError('Unmatched )');
@@ -51,10 +54,10 @@ var lispjs = new (function(){
 		}
 	};
 	
-	function evalulate() {
+	function evaluate() {
 	};
 	
-	this.parse = parse;
+	this.parse = parse;	
 	this.tokenize = tokenize;
 	this.evaluate = evaluate;
-});
+})();
