@@ -1,51 +1,10 @@
-var lispjs = {};
+function Symbol(name) { this.name = name; };
 
-lispjs.tokenize = function(input) {
-	return input
-		.replace(/\(/g, ' ( ')
-		.replace(/\)/g, ' ) ')
-		.split(' ')
-		.filter(function (c) {
-			return c != '' && c != ' ';
-		});
-};
-
-lispjs.parseinternal = function(input, i, list) {
-	if (input[i] != '(')
-		throw 'Expected "("';
-
-	for(i = i + 1; i < input.length; i++) {
-		if (input[i] == ')')
-			return i;
-		else if (input[i] == '(') {
-			var sub = [];
-			i = lispjs.parseinternal(input, i, sub);
-			list.push(sub);
-		}
-		else 
-			list.push(input[i]);		
-	}
-
-	throw 'Expected ")"';
-}
-
-lispjs.parse = function(input) {
-	if (typeof input === 'string')
-		input = lispjs.tokenize(input);
-
-	var list = [];
-	lispjs.parseinternal(input, 0, list);
-	return list;
-};
-
-function evnironment(parent) {
+function Evnironment(parent) {
 	var symbols = {};
 
 	this.get = function(sym) {
-		var val = symbols[sym];
-		if (typeof val == 'undefined' && parent)
-			return parent.get(sym);
-		return val;
+		return val || (parent && parent.get(sym));
 	};
 	
 	this.set = function(sym, val) {
@@ -53,17 +12,49 @@ function evnironment(parent) {
 	};
 };
 
-var globals = new environment();
+function atom(str) {
+	if (str[0] === '"' && str[str.length - 1] == '"')
+		return str.substring(1, str.length - 2);
 
-lispjs.eval = function(input) {
-	if (typeof input == 'string')
-		input = lispjs.parse(input);
+	return new Number(str) || new Symbol(str);
+};
 
-	for(var i = 0; i < input.length; i++) {
-		if (typeof input[i] != 'string') {
+var lispjs = new (function(){
+	function tokenize(str) {
+		return str
+			.replace(/\(/g, ' ( ')
+			.replace(/\)/g, ' ) ')
+			.split(' ')
+			.filter(function (c) {
+				return c != '' && c != ' ';
+			});
+	};
+	
+	function parse(ast) {
+		if (ast.length === 0)
+			throw new SyntaxError('Unexpected end of AST when parsing expression');
 			
+		var current = ast.shift();
+		
+		if (current === '(') {
+			var list = [];
+
+			while (ast[0] !== ')') {
+				list.push(parse(ast.shift()));
+			}
+		}
+		else if (current === ')') {
+			throw new SyntaxError('Unmatched )');
 		}
 		else {
+			return atom(current);
 		}
-	}
-};
+	};
+	
+	function evalulate() {
+	};
+	
+	this.parse = parse;
+	this.tokenize = tokenize;
+	this.evaluate = evaluate;
+});
