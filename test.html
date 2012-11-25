@@ -13,11 +13,26 @@
 			};
 		
 			$(function() {
+				$('#input').keypress(function(evt){ 
+					if (evt.which == 13 && !evt.shiftKey) {
+						evt.preventDefault();
+						$('form').submit();
+					}
+				});
+				
+				$('#input').keydown(function(evt) {
+					if (evt.which == 9) {
+						evt.preventDefault();
+						var val = $('#input').val() + '  ';
+						$('#input').val(val);
+					}
+				});
+				
 				$('form').submit(function(evt) {
 					evt.preventDefault();
 					
 					var input = $('#input').val();
-					$('#input').val('');
+					$('#input').html('');
 					
 					var evaluator;
 					if (input[0] == '>') {
@@ -44,12 +59,14 @@
 						}
 					}*/
 				});
+				
+				$('#input').focus();
 			});
 		</script>
 		<div id="output">
 		</div>
 		<form action="">
-			<input type="text" value="" id="input" />
+			<textarea id="input"></textarea>
 		</form>
 	</body>
 </html>
