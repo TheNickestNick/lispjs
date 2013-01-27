@@ -26,7 +26,7 @@ var lispjs = new (function(){
 		return str
 			.replace(/\(/g, ' ( ')
 			.replace(/\)/g, ' ) ')
-			.split(' ')
+			.split(/\s+/)
 			.filter(function (c) {
 				return c != '' && c != ' ';
 			});
